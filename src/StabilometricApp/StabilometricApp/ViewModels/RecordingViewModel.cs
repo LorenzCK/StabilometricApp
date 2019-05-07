@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Plugin.SimpleAudioPlayer;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 
@@ -16,10 +17,21 @@ namespace StabilometricApp.ViewModels {
 
         StreamWriter _writer = null;
         int _readingCount = 0;
+        ISimpleAudioPlayer _beepSecondaryPlayer;
+        ISimpleAudioPlayer _beepPrimaryPlayer;
+        ISimpleAudioPlayer _beepFinalPlayer;
 
         public RecordingViewModel() {
             IsRecording = false;
+            
+            
             StartRecording = new Command(async () => await StartRecordingPerform());
+        }
+
+        private void InitializeAudioPlayers() {
+            InitializeSecondaryBeepPlayer();
+            InitializePrimaryBeepPlayer();
+            InitializeFinalBeepPlayer();
         }
 
         public ICommand StartRecording { get; }
@@ -29,6 +41,8 @@ namespace StabilometricApp.ViewModels {
                 return;
             }
 
+            InitializeAudioPlayers();
+
             string filename = "stabilo-" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".csv";
             string filepath = Path.Combine(App.GetExternalRootPath(), filename);
             _writer = new StreamWriter(new FileStream(filepath, FileMode.CreateNew));
@@ -36,14 +50,22 @@ namespace StabilometricApp.ViewModels {
 
             await _writer.WriteLineAsync("Ticks, Timestamp, AccX, AccY, AccZ, ");
 
+            _beepSecondaryPlayer.Play();
             Counter = 3;
             IsRecording = true;
             await Task.Delay(1000);
+
+            _beepSecondaryPlayer.Play();
             Counter = 2;
             await Task.Delay(1000);
+
+            _beepSecondaryPlayer.Play();
             Counter = 1;
             await Task.Delay(1000);
+
+            _beepPrimaryPlayer.Play();
             Counter = 0;
+            
 
             Accelerometer.Start(SensorSpeed.Fastest);
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
@@ -61,6 +83,9 @@ namespace StabilometricApp.ViewModels {
             _writer.Dispose();
             _writer = null;
 
+            // Stop 
+            _beepFinalPlayer.Play();
+
             IsRecording = false;
         }
 
@@ -77,6 +102,22 @@ namespace StabilometricApp.ViewModels {
             ));
 
             Debug.WriteLine("Reading {0}", ++_readingCount);
+        }
+
+        private void InitializeSecondaryBeepPlayer() {
+            _beepSecondaryPlayer = CrossSimpleAudioPlayer.CreateSimpleAudioPlayer();
+            Stream beepStream = GetType().Assembly.GetManifestResourceStream("StabilometricApp.Beep-2.mp3");
+            bool isSuccess = _beepSecondaryPlayer.Load(beepStream);
+        }
+        private void InitializePrimaryBeepPlayer() {
+            _beepPrimaryPlayer = CrossSimpleAudioPlayer.CreateSimpleAudioPlayer();
+            Stream beepStream = GetType().Assembly.GetManifestResourceStream("StabilometricApp.Beep-1.mp3");
+            bool isSuccess = _beepPrimaryPlayer.Load(beepStream);
+        }
+        private void InitializeFinalBeepPlayer() {
+            _beepFinalPlayer = CrossSimpleAudioPlayer.CreateSimpleAudioPlayer();
+            Stream beepStream = GetType().Assembly.GetManifestResourceStream("StabilometricApp.Beep-final.mp3");
+            bool isSuccess = _beepFinalPlayer.Load(beepStream);
         }
 
         bool _isRecording = false;

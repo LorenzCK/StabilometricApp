@@ -1,3 +1,7 @@
 .vs
 **/bin/*
 **/obj/*
+
+src/StabilometricApp/StabilometricApp\.Android/StabilometricApp\.Android\.csproj\.user
+
+*.user

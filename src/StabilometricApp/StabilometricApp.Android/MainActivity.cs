@@ -6,10 +6,13 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
+using static Android.OS.PowerManager;
 
 namespace StabilometricApp.Droid {
     [Activity(Label = "StabilometricApp", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity {
+
+        WakeLock _wakeLock;
 
         public MainActivity() {
             App.GetExternalRootPath = () => {
@@ -35,5 +38,27 @@ namespace StabilometricApp.Droid {
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
 
+
+        protected override void OnStart() {
+            base.OnStart();
+
+            if(_wakeLock is null) {
+                var context = this.ApplicationContext;
+                PowerManager powerManager = (PowerManager)context.GetSystemService("power");
+                _wakeLock = powerManager.NewWakeLock(WakeLockFlags.Full, "whatever");
+                _wakeLock.Acquire();
+            }
+            
+        }
+        protected override void OnStop() {
+            base.OnStop();
+
+            if(_wakeLock != null) {
+                _wakeLock.Release();
+                _wakeLock = null;
+            }
+            
+            
+        }
     }
 }

@@ -47,6 +47,9 @@ namespace StabilometricApp.ViewModels {
             _writer = new StreamWriter(new FileStream(filepath, FileMode.CreateNew));
             _readingCount = 0;
 
+            await _writer.WriteLineAsync(string.Format("# Start time (local): {0:G}", DateTime.Now));
+            await _writer.WriteLineAsync(string.Format("# Track name: {0}", TrackName));
+            await _writer.WriteLineAsync(string.Format("# Height (cm): {0}", Height));
             await _writer.WriteLineAsync("Ticks, Timestamp, AccX, AccY, AccZ, ");
 
             _beepSecondaryPlayer.Play();
@@ -64,6 +67,8 @@ namespace StabilometricApp.ViewModels {
 
             _beepPrimaryPlayer.Play();
             Counter = 0;
+
+            await _writer.FlushAsync();
             
 
             Accelerometer.Start(SensorSpeed.Fastest);
@@ -136,6 +141,30 @@ namespace StabilometricApp.ViewModels {
             }
             private set {
                 SetProperty(ref _counter, value);
+            }
+        }
+
+        string _trackName;
+        public string TrackName {
+            get {
+                return _trackName;
+            }
+            set {
+                SetProperty(ref _trackName, value);
+            }
+        }
+
+        int _height = 180;
+        public string Height {
+            get {
+                return _height.ToString();
+            }
+            set {
+                if(!int.TryParse(value, out int height)) {
+                    return;
+                }
+
+                SetProperty(ref _height, height);
             }
         }
 

@@ -24,8 +24,9 @@ namespace StabilometricApp.ViewModels {
         public RecordingViewModel() {
             IsRecording = false;
             
-            
             StartRecording = new Command(async () => await StartRecordingPerform());
+
+            Task.Run(() => InitializeAudioPlayers());
         }
 
         private void InitializeAudioPlayers() {
@@ -40,8 +41,6 @@ namespace StabilometricApp.ViewModels {
             if(IsRecording) {
                 return;
             }
-
-            InitializeAudioPlayers();
 
             string filename = "stabilo-" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".csv";
             string filepath = Path.Combine(App.GetExternalRootPath(), filename);

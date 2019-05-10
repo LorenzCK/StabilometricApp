@@ -70,7 +70,7 @@ namespace StabilometricApp.ViewModels {
             Accelerometer.Start(SensorSpeed.Fastest);
             Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
 
-            Counter = 60;
+            Counter = 30;
             while(Counter > 0) {
                 await Task.Delay(1000);
                 Counter -= 1;

@@ -1,22 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.IO;
-using System.Text;
-using System.Threading;
+﻿using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Plugin.SimpleAudioPlayer;
-using Xamarin.Essentials;
+using StabilometricApp.Models;
 using Xamarin.Forms;
+
 
 namespace StabilometricApp.ViewModels {
 
     public class RecordingViewModel : BaseViewModel {
 
-        StreamWriter _writer = null;
-        int _readingCount = 0;
+        //StreamWriter _writer = null;
+        //int[] _readingCount = { 0, 0, 0, 0 };
         ISimpleAudioPlayer _beepSecondaryPlayer;
         ISimpleAudioPlayer _beepPrimaryPlayer;
         ISimpleAudioPlayer _beepFinalPlayer;
@@ -41,17 +36,7 @@ namespace StabilometricApp.ViewModels {
             if(IsRecording) {
                 return;
             }
-
-            string filename = "stabilo-" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".csv";
-            string filepath = Path.Combine(App.GetExternalRootPath(), filename);
-            _writer = new StreamWriter(new FileStream(filepath, FileMode.CreateNew));
-            _readingCount = 0;
-
-            await _writer.WriteLineAsync(string.Format("# Start time (local): {0:G}", DateTime.Now));
-            await _writer.WriteLineAsync(string.Format("# Track name: {0}", TrackName));
-            await _writer.WriteLineAsync(string.Format("# Height (cm): {0}", Height));
-            await _writer.WriteLineAsync("Ticks, Timestamp, AccX, AccY, AccZ, ");
-
+            
             _beepSecondaryPlayer.Play();
             Counter = 3;
             IsRecording = true;
@@ -68,11 +53,7 @@ namespace StabilometricApp.ViewModels {
             _beepPrimaryPlayer.Play();
             Counter = 0;
 
-            await _writer.FlushAsync();
-            
-
-            Accelerometer.Start(SensorSpeed.Fastest);
-            Accelerometer.ReadingChanged += Accelerometer_ReadingChanged;
+            _startSensors();
 
             Counter = 30;
             while(Counter > 0) {
@@ -80,34 +61,26 @@ namespace StabilometricApp.ViewModels {
                 Counter -= 1;
             }
 
-            Accelerometer.ReadingChanged -= Accelerometer_ReadingChanged;
-            Accelerometer.Stop();
+            _stopSensors();
 
-            await _writer.FlushAsync();
-            _writer.Dispose();
-            _writer = null;
-
+            
             // Stop 
             _beepFinalPlayer.Play();
 
             IsRecording = false;
         }
 
-        private void Accelerometer_ReadingChanged(object sender, AccelerometerChangedEventArgs e) {
-            var data = e.Reading.Acceleration;
-            var now = DateTime.Now;
+        private void _startSensors() {
 
-            _writer.WriteLine(string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}, {1}, {2}, {3}, {4}, ",
-                now.Ticks,
-                now.ToString("O"),
-                data.X, data.Y, data.Z
-            ));
-
-            Debug.WriteLine("Reading {0}", ++_readingCount);
+            MessagingCenter.Send<RecordingViewModel, SimpleMessage>(this, "MC", new SimpleMessage(SimpleMessage.MessageType.START));
         }
 
+        private void _stopSensors() {
+
+            MessagingCenter.Send<RecordingViewModel, SimpleMessage>(this, "MC", new SimpleMessage(SimpleMessage.MessageType.STOP));
+
+        }
+        
         private void InitializeSecondaryBeepPlayer() {
             _beepSecondaryPlayer = CrossSimpleAudioPlayer.CreateSimpleAudioPlayer();
             Stream beepStream = GetType().Assembly.GetManifestResourceStream("StabilometricApp.Beep-2.mp3");

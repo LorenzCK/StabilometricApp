@@ -4,7 +4,6 @@ using Android.App;
 using Android.Content.PM;
 using Android.Runtime;
 using Android.OS;
-using static Android.OS.PowerManager;
 using Android.Hardware;
 using Android.Util;
 using Xamarin.Forms;
@@ -12,20 +11,27 @@ using StabilometricApp.ViewModels;
 using StabilometricApp.Models;
 using System.IO;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace StabilometricApp.Droid {
-    [Activity(Label = "StabilometricApp", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
+
+    [Activity(
+        Label = "StabilometricApp",
+        Icon = "@mipmap/icon",
+        Theme = "@style/MainTheme",
+        MainLauncher = true,
+        ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation
+    )]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity {
 
-        WakeLock _wakeLock;
+        private PowerManager.WakeLock _wakeLock;
         private SensorManager _sensorManager;
         private SensorListener _sensorListener;
         protected StreamWriter Writer { get; set; }
-        private int[] _readingCount;
 
         public MainActivity() {
             App.GetExternalRootPath = () => {
-                return this.GetExternalFilesDir(null).AbsolutePath;
+                return GetExternalFilesDir(null).AbsolutePath;
             };
         }
 
@@ -36,7 +42,6 @@ namespace StabilometricApp.Droid {
             base.OnCreate(savedInstanceState);
 
             MessagingCenter.Subscribe<RecordingViewModel, SimpleMessage>(this, "MC", async (sender, msg) => {
-
                 switch(msg.Type) {
                     case SimpleMessage.MessageType.START:
                         Log.Debug(this.LocalClassName, "Start Recording");
@@ -49,23 +54,19 @@ namespace StabilometricApp.Droid {
                         await StopRecording();
                         break;
                 }
-
             });
             _sensorManager = GetSystemService(SensorService) as Android.Hardware.SensorManager;
 
-            global::Xamarin.Forms.Forms.SetFlags("Shell_Experimental", "Visual_Experimental", "CollectionView_Experimental", "FastRenderers_Experimental");
+            Forms.SetFlags("Shell_Experimental", "Visual_Experimental", "CollectionView_Experimental", "FastRenderers_Experimental");
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
-            global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
+            Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
         }
 
-
-
-        private async System.Threading.Tasks.Task InitializeRecordingAsync(RecordingViewModel sender) {
+        private async Task InitializeRecordingAsync(RecordingViewModel sender) {
             string filename = "stabilo-" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".csv";
             string filepath = Path.Combine(App.GetExternalRootPath(), filename);
             Writer = new StreamWriter(new FileStream(filepath, FileMode.CreateNew));
-            _readingCount = new int[] { 0, 0, 0, 0 };
 
             await Writer.WriteLineAsync(string.Format("# Start time (local): {0:G}", DateTime.Now));
             await Writer.WriteLineAsync(string.Format("# Track name: {0}", sender.TrackName));
@@ -135,10 +136,8 @@ namespace StabilometricApp.Droid {
 
         }
 
-
         // ISensorEventListener
         class SensorListener : Java.Lang.Object, ISensorEventListener {
-
             private MainActivity _parent;
 
             public SensorListener(Activity context) : base() {
@@ -170,8 +169,6 @@ namespace StabilometricApp.Droid {
                         mark = "l";
                         break;
                 }
-
-                //Log.Debug(_parent.LocalClassName, "{0}, {1}, {2}, {3}, {4}, {5}, ", mark, now.Ticks, now.ToString("O"), x, y, z);
 
                 if(_parent.Writer != null) {
                     _parent.Writer.WriteLine(string.Format(

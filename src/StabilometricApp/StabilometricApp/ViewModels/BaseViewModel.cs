@@ -3,16 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-using Xamarin.Forms;
-
-using StabilometricApp.Models;
-using StabilometricApp.Services;
-
 namespace StabilometricApp.ViewModels {
 
     public class BaseViewModel : INotifyPropertyChanged {
-
-        public IDataStore<Item> DataStore => DependencyService.Get<IDataStore<Item>>() ?? new MockDataStore();
 
         bool isBusy = false;
         public bool IsBusy {
@@ -46,5 +39,7 @@ namespace StabilometricApp.ViewModels {
         }
 
         #endregion
+
     }
+
 }

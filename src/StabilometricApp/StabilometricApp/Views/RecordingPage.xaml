@@ -45,6 +45,7 @@
                        VerticalOptions="Center"
                        FontSize="120"
                        FontAttributes="Bold"
+                       HorizontalTextAlignment="Center"
                        IsVisible="{Binding Path=IsRecording}"
                        Text="{Binding Path=Counter}"
                        />

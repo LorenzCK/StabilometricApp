@@ -2,6 +2,9 @@
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using StabilometricApp.Views;
+using System.Numerics;
+using StabilometricApp.Models;
+using StabilometricApp.ViewModels;
 
 namespace StabilometricApp {
 
@@ -26,6 +29,10 @@ namespace StabilometricApp {
         }
 
         public static Func<string> GetExternalRootPath { get; set; }
+
+        public static Vector3 LastAccelerometerReading,
+                              LastGravityReading,
+                              LastGyroscopeReading;
 
     }
 

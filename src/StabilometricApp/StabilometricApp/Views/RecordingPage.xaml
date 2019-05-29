@@ -17,23 +17,54 @@
     
     <ContentPage.Content>
         <StackLayout Orientation="Vertical" Margin="10">
-            <Label HorizontalOptions="Start"
-                   FontSize="Default"
-                   Text="Track name" />
-            <Editor HorizontalOptions="Fill"
-                    Text="{Binding Path=TrackName}"
-                    Margin="0,0,0,8"
-                    />
-            <Label HorizontalOptions="Start"
-                   FontSize="Default"
-                   Text="Height (cm)"
-                   />
-            <Editor HorizontalOptions="Start"
-                    WidthRequest="100"
-                    Keyboard="Numeric"
-                    Text="{Binding Path=Height}"
-                    Margin="0,0,0,8"
-                    />
+            <StackLayout HorizontalOptions="Fill"
+                         Orientation="Horizontal">
+                <Label VerticalOptions="Fill"
+                       VerticalTextAlignment="Center"
+                       Text="Name:"
+                       />
+                <Editor HorizontalOptions="FillAndExpand"
+                        Text="{Binding Path=PersonName, Mode=OneWay}"
+                        />
+                <Label VerticalOptions="Fill"
+                       VerticalTextAlignment="Center"
+                       Text="Sex:"
+                       />
+                <Picker ItemsSource="{Binding Path=SexList}"
+                        SelectedIndex="{Binding Path=SexSelectionIndex, Mode=TwoWay}"
+                        Title="Subject sex"
+                        />
+            </StackLayout>
+            <StackLayout HorizontalOptions="Fill"
+                         Orientation="Horizontal">
+                <Label VerticalOptions="Fill"
+                       VerticalTextAlignment="Center"
+                       Text="Height (cm):"
+                       />
+                <Editor Keyboard="Numeric"
+                        HorizontalOptions="FillAndExpand"
+                        Text="{Binding Path=PersonHeight, Mode=OneWay}"
+                        />
+                <Label VerticalOptions="Fill"
+                       VerticalTextAlignment="Center"
+                       Text="Weight (kg):"
+                       />
+                <Editor Keyboard="Numeric"
+                        HorizontalOptions="FillAndExpand"
+                        Text="{Binding Path=PersonWeight, Mode=OneWay}"
+                        />
+            </StackLayout>
+            <StackLayout HorizontalOptions="Fill"
+                         Orientation="Horizontal">
+                <Label VerticalOptions="Fill"
+                       VerticalTextAlignment="Center"
+                       Text="Track notes:"
+                       />
+                <Editor HorizontalOptions="FillAndExpand"
+                        Text="{Binding Path=TrackName}"
+                        Placeholder="Notes, conditions, etc."
+                        />
+            </StackLayout>
             <Grid HorizontalOptions="FillAndExpand" VerticalOptions="FillAndExpand">
                 <Button HorizontalOptions="Fill"
                         VerticalOptions="Fill"

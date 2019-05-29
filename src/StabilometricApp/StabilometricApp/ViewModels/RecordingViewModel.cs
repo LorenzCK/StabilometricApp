@@ -191,17 +191,60 @@ namespace StabilometricApp.ViewModels {
             }
         }
 
-        int _height = 180;
-        public string Height {
+        int _personHeight = 180;
+        public string PersonHeight {
             get {
-                return _height.ToString();
+                return _personHeight.ToString();
             }
             set {
                 if(!int.TryParse(value, out int height)) {
                     return;
                 }
 
-                SetProperty(ref _height, height);
+                SetProperty(ref _personHeight, height);
+            }
+        }
+
+        int _personWeight = 80;
+        public string PersonWeight {
+            get {
+                return _personWeight.ToString();
+            }
+            set {
+                if(!int.TryParse(value, out int weight)) {
+                    return;
+                }
+
+                SetProperty(ref _personWeight, weight);
+            }
+        }
+
+        string _personName;
+        public string PersonName {
+            get {
+                return _personName;
+            }
+            set {
+                SetProperty(ref _personName, value);
+            }
+        }
+
+        public IList SexList { get; private set; } = new string[] {
+            "Male",
+            "Female"
+        };
+
+        private int _sexSelectionIndex = 0;
+        public int SexSelectionIndex {
+            get {
+                return _sexSelectionIndex;
+            }
+            set {
+                if(value < 0 || value > 1) {
+                    return;
+                }
+
+                SetProperty(ref _sexSelectionIndex, value);
             }
         }
 

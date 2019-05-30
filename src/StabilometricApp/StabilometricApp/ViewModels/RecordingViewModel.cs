@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Globalization;
 using System.IO;
 using System.Threading;
@@ -98,7 +99,7 @@ namespace StabilometricApp.ViewModels {
 
             await _writer.WriteLineAsync(string.Format("# Start time (local): {0:G}", DateTime.Now));
             await _writer.WriteLineAsync(string.Format("# Track name: {0}", TrackName));
-            await _writer.WriteLineAsync(string.Format("# Height (cm): {0}", Height));
+            await _writer.WriteLineAsync(string.Format("# Height (cm): {0}", PersonHeight));
             await _writer.WriteLineAsync("Ticks, AccX, AccY, AccZ, GravX, GravY, GravZ, GyroX, GyroY, GyroZ");
 
             _beepSecondaryPlayer.Play();

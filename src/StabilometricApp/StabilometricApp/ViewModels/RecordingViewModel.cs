@@ -34,24 +34,11 @@ namespace StabilometricApp.ViewModels {
             Task.Run(() => InitializeAudioPlayers());
         }
 
-        private DateTime _lastTickTimestamp = DateTime.MaxValue;
-        private const int ExpectedTimerIntervalMs = (1000 / 100);
-        private const int ToleratedTimerIntervalMs = (int)(ExpectedTimerIntervalMs * ToleranceIntervalMultiplier);
-        private const double ToleranceIntervalMultiplier = 1.7;
-
         private DateTime _targetTimestamp = DateTime.MinValue;
 
         private int _secondCounter = 0;
 
         private void TimerTick(object v) {
-            var elapsed = DateTime.UtcNow - _lastTickTimestamp;
-            if(elapsed.Ticks >= 0) {
-                if(elapsed.TotalMilliseconds > ToleratedTimerIntervalMs) {
-                    // System.Diagnostics.Debug.WriteLine("Cannot keep up");
-                }
-            }
-            _lastTickTimestamp = DateTime.UtcNow;
-
             lock(_writerLock) {
                 _writer.Write(string.Format(
                     CultureInfo.InvariantCulture,

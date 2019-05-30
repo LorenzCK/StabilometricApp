@@ -77,16 +77,23 @@ namespace StabilometricApp.ViewModels {
             if(IsRecording) {
                 return;
             }
+            var personName = PersonName.ToFilenamePart();
+            if(string.IsNullOrEmpty(personName)) {
+                return;
+            }
 
             MessagingCenter.Send(this, "MC", new SimpleMessage(SimpleMessage.MessageType.START));
 
-            string filename = "stabilo-" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".csv";
+            string filename = "stabilo-" + personName.ToLowerInvariant() + "-" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".csv";
             string filepath = Path.Combine(App.GetExternalRootPath(), filename);
             _writer = new StreamWriter(new FileStream(filepath, FileMode.CreateNew));
 
             await _writer.WriteLineAsync(string.Format("# Start time (local): {0:G}", DateTime.Now));
-            await _writer.WriteLineAsync(string.Format("# Track name: {0}", TrackName));
+            await _writer.WriteLineAsync(string.Format("# Subject name: {0}", PersonName));
+            await _writer.WriteLineAsync(string.Format("# Sex: {0}", SexList[SexSelectionIndex]));
             await _writer.WriteLineAsync(string.Format("# Height (cm): {0}", PersonHeight));
+            await _writer.WriteLineAsync(string.Format("# Weight (kg): {0}", PersonWeight));
+            await _writer.WriteLineAsync(string.Format("# Track notes: {0}", TrackNotes));
             await _writer.WriteLineAsync("Ticks, AccX, AccY, AccZ, GravX, GravY, GravZ, GyroX, GyroY, GyroZ");
 
             _beepSecondaryPlayer.Play();
@@ -170,7 +177,7 @@ namespace StabilometricApp.ViewModels {
         }
 
         string _trackName;
-        public string TrackName {
+        public string TrackNotes {
             get {
                 return _trackName;
             }

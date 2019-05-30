@@ -24,7 +24,7 @@
                        Text="Name:"
                        />
                 <Editor HorizontalOptions="FillAndExpand"
-                        Text="{Binding Path=PersonName, Mode=OneWay}"
+                        Text="{Binding Path=PersonName}"
                         />
                 <Label VerticalOptions="Fill"
                        VerticalTextAlignment="Center"
@@ -43,7 +43,7 @@
                        />
                 <Editor Keyboard="Numeric"
                         HorizontalOptions="FillAndExpand"
-                        Text="{Binding Path=PersonHeight, Mode=OneWay}"
+                        Text="{Binding Path=PersonHeight}"
                         />
                 <Label VerticalOptions="Fill"
                        VerticalTextAlignment="Center"
@@ -51,7 +51,7 @@
                        />
                 <Editor Keyboard="Numeric"
                         HorizontalOptions="FillAndExpand"
-                        Text="{Binding Path=PersonWeight, Mode=OneWay}"
+                        Text="{Binding Path=PersonWeight}"
                         />
             </StackLayout>
             <StackLayout HorizontalOptions="Fill"
@@ -61,7 +61,7 @@
                        Text="Track notes:"
                        />
                 <Editor HorizontalOptions="FillAndExpand"
-                        Text="{Binding Path=TrackName}"
+                        Text="{Binding Path=TrackNotes}"
                         Placeholder="Notes, conditions, etc."
                         />
             </StackLayout>

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
 using Android.App;
+using Android.Content;
 using Android.Content.PM;
 using Android.Hardware;
 using Android.OS;
 using Android.Runtime;
 using Android.Util;
+using Android.Widget;
 using StabilometricApp.Models;
 using StabilometricApp.ViewModels;
 using Xamarin.Forms;
@@ -31,6 +33,18 @@ namespace StabilometricApp.Droid {
 
             App.GetExternalRootPath = () => {
                 return GetExternalFilesDir(null).AbsolutePath;
+            };
+            App.OpenExternalRootPath = () => {
+                var targetUri = global::Android.Net.Uri.Parse(App.GetExternalRootPath());
+                var i = new Intent(Intent.ActionView);
+                i.SetDataAndType(targetUri, "resource/folder");
+
+                if(i.ResolveActivityInfo(ApplicationContext.PackageManager, 0) != null) {
+                    StartActivity(i);
+                }
+                else {
+                    Toast.MakeText(this, "File manager not installed", ToastLength.Long).Show();
+                }
             };
         }
 

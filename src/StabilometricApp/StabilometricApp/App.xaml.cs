@@ -30,6 +30,8 @@ namespace StabilometricApp {
 
         public static Func<string> GetExternalRootPath { get; set; }
 
+        public static Action OpenExternalRootPath { get; set; }
+
         public static Vector3 LastAccelerometerReading,
                               LastGravityReading,
                               LastGyroscopeReading;

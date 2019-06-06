@@ -83,8 +83,8 @@ namespace StabilometricApp.Droid {
         protected override void OnStart() {
             base.OnStart();
 
-            if(_wakeLock is null) {
-                var context = this.ApplicationContext;
+            if(_wakeLock == null) {
+                var context = ApplicationContext;
                 PowerManager powerManager = (PowerManager)context.GetSystemService(PowerService);
                 _wakeLock = powerManager.NewWakeLock(WakeLockFlags.ScreenDim, "whatever");
                 _wakeLock.Acquire();

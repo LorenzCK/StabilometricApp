@@ -65,11 +65,11 @@ namespace StabilometricApp.ViewModels {
         }
 
         private DateTime _targetTimestamp = DateTime.MinValue;
-
-        private int _secondCounter = 0;
+        private DateTime _updateTimestamp = DateTime.MinValue;
+        private bool _completed = false;
 
         private void TimerTick(object v) {
-            if(_collectorIndex >= _collector.Length) {
+            if(_completed || _collectorIndex >= _collector.Length) {
                 return;
             }
 
@@ -86,16 +86,17 @@ namespace StabilometricApp.ViewModels {
                 GyroZ = App.LastGyroscopeReading.Z
             };
 
-            // Recount elapsed time approx. every half-second
-            if(_secondCounter-- < 0) {
-                var remaining = _targetTimestamp.Subtract(DateTime.UtcNow).TotalSeconds;
-                Counter = (int)Math.Ceiling(remaining);
+            if(DateTime.UtcNow >= _targetTimestamp) {
+                _completed = true;
+                Counter = 0;
+                Task.Run(() => { StopRecordingPerform().ConfigureAwait(false); });
+            }
+            else if(DateTime.UtcNow >= _updateTimestamp) {
+                var remaining = Math.Ceiling(_targetTimestamp.Subtract(DateTime.UtcNow).TotalSeconds);
+                Counter = (int)remaining;
 
-                if(remaining <= 0) {
-                    Task.Run(() => { StopRecordingPerform().ConfigureAwait(false); });
-                }
-
-                _secondCounter = TimerFrequencyHz / 2;
+                _updateTimestamp = _targetTimestamp.Subtract(TimeSpan.FromSeconds(remaining - 1));
+                System.Diagnostics.Debug.WriteLine(string.Format("Updating, {0}s remain, next update at {1}", remaining, _updateTimestamp));
             }
         }
 
@@ -146,8 +147,9 @@ namespace StabilometricApp.ViewModels {
             _beepPrimaryPlayer.Play();
             Counter = 0;
 
-            _secondCounter = 0;
+            _completed = false;
             _targetTimestamp = DateTime.UtcNow.Add(TimeSpan.FromSeconds(RecordingDurationSeconds));
+            _updateTimestamp = DateTime.UtcNow.Add(TimeSpan.FromSeconds(1));
 
             _collectorIndex = 0;
             _collector = new Reading[(int)(TimerFrequencyHz * RecordingDurationSeconds * 1.2)];

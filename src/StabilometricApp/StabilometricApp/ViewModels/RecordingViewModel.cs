@@ -145,7 +145,7 @@ namespace StabilometricApp.ViewModels {
             await Task.Delay(1000);
 
             _beepPrimaryPlayer.Play();
-            Counter = 0;
+            Counter = RecordingDurationSeconds;
 
             _completed = false;
             _targetTimestamp = DateTime.UtcNow.Add(TimeSpan.FromSeconds(RecordingDurationSeconds));

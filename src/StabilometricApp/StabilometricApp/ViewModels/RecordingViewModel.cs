@@ -2,11 +2,13 @@
 using System.Collections;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Plugin.SimpleAudioPlayer;
 using StabilometricApp.Models;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace StabilometricApp.ViewModels {
@@ -32,6 +34,30 @@ namespace StabilometricApp.ViewModels {
             StartRecording = new Command(async () => await StartRecordingPerform());
 
             Task.Run(() => InitializeAudioPlayers());
+
+            // Restore values from settings
+            var t = GetType();
+            foreach(var propertyName in new string[] {
+                nameof(TrackNotes),
+                nameof(PersonHeight),
+                nameof(PersonWeight),
+                nameof(PersonName),
+                nameof(SexSelectionIndex)
+            }) {
+                var property = t.GetProperty(propertyName, BindingFlags.Instance | BindingFlags.Public);
+                if(property != null) {
+                    var propertyValueKey = nameof(RecordingViewModel) + propertyName;
+                    if(Preferences.ContainsKey(propertyValueKey)) {
+                        var setter = property.GetSetMethod();
+                        if(property.PropertyType == typeof(int)) {
+                            setter.Invoke(this, new object[] { Preferences.Get(propertyValueKey, 0) });
+                        }
+                        else {
+                            setter.Invoke(this, new object[] { Preferences.Get(propertyValueKey, string.Empty) });
+                        }
+                    }
+                }
+            }
         }
 
         private DateTime _targetTimestamp = DateTime.MinValue;
@@ -183,6 +209,7 @@ namespace StabilometricApp.ViewModels {
             }
             set {
                 SetProperty(ref _trackName, value);
+                Preferences.Set(nameof(RecordingViewModel) + nameof(TrackNotes), value);
             }
         }
 
@@ -197,6 +224,7 @@ namespace StabilometricApp.ViewModels {
                 }
 
                 SetProperty(ref _personHeight, height);
+                Preferences.Set(nameof(RecordingViewModel) + nameof(PersonHeight), value);
             }
         }
 
@@ -211,6 +239,7 @@ namespace StabilometricApp.ViewModels {
                 }
 
                 SetProperty(ref _personWeight, weight);
+                Preferences.Set(nameof(RecordingViewModel) + nameof(PersonWeight), value);
             }
         }
 
@@ -221,6 +250,7 @@ namespace StabilometricApp.ViewModels {
             }
             set {
                 SetProperty(ref _personName, value);
+                Preferences.Set(nameof(RecordingViewModel) + nameof(PersonName), value);
             }
         }
 
@@ -240,6 +270,7 @@ namespace StabilometricApp.ViewModels {
                 }
 
                 SetProperty(ref _sexSelectionIndex, value);
+                Preferences.Set(nameof(RecordingViewModel) + nameof(SexSelectionIndex), value);
             }
         }
 

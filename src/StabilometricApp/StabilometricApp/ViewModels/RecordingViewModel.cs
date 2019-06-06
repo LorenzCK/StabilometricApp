@@ -23,8 +23,12 @@ namespace StabilometricApp.ViewModels {
 
         private const int TimerFrequencyHz = 100;
         private const int TimerIntervalMs = (1000 / TimerFrequencyHz);
+        private const int RecordingDurationSeconds = 30;
+
         private readonly Timer _timer;
-        private readonly object _writerLock = new object();
+
+        private Reading[] _collector;
+        private int _collectorIndex = 0;
 
         public RecordingViewModel() {
             IsRecording = false;
@@ -65,18 +69,22 @@ namespace StabilometricApp.ViewModels {
         private int _secondCounter = 0;
 
         private void TimerTick(object v) {
-            lock(_writerLock) {
-                _writer.Write(string.Format(
-                    CultureInfo.InvariantCulture,
-                    "{0},{1:F3},{2:F3},{3:F3},{4:F3},{5:F3},{6:F3},{7:F3},{8:F3},{9:F3}",
-                    DateTime.UtcNow.Ticks,
-                    App.LastAccelerometerReading.X, App.LastAccelerometerReading.Y, App.LastAccelerometerReading.Z,
-                    App.LastGravityReading.X, App.LastGravityReading.Y, App.LastGravityReading.Z,
-                    App.LastGyroscopeReading.X, App.LastGyroscopeReading.Y, App.LastGyroscopeReading.Z
-                ));
-
-                _writer.WriteLine();
+            if(_collectorIndex >= _collector.Length) {
+                return;
             }
+
+            _collector[_collectorIndex++] = new Reading {
+                Ticks = DateTime.UtcNow.Ticks,
+                AccX = App.LastAccelerometerReading.X,
+                AccY = App.LastAccelerometerReading.Y,
+                AccZ = App.LastAccelerometerReading.Z,
+                GravX = App.LastGravityReading.X,
+                GravY = App.LastGravityReading.Y,
+                GravZ = App.LastGravityReading.Z,
+                GyroX = App.LastGyroscopeReading.X,
+                GyroY = App.LastGyroscopeReading.Y,
+                GyroZ = App.LastGyroscopeReading.Z
+            };
 
             // Recount elapsed time approx. every half-second
             if(_secondCounter-- < 0) {
@@ -139,7 +147,11 @@ namespace StabilometricApp.ViewModels {
             Counter = 0;
 
             _secondCounter = 0;
-            _targetTimestamp = DateTime.UtcNow.Add(TimeSpan.FromSeconds(30));
+            _targetTimestamp = DateTime.UtcNow.Add(TimeSpan.FromSeconds(RecordingDurationSeconds));
+
+            _collectorIndex = 0;
+            _collector = new Reading[(int)(TimerFrequencyHz * RecordingDurationSeconds * 1.2)];
+            System.Diagnostics.Debug.WriteLine(string.Format("Allocated buffer of {0} elements for {1} seconds", _collector.Length, RecordingDurationSeconds));
 
             _timer.Change(TimerIntervalMs, TimerIntervalMs);
         }
@@ -155,11 +167,26 @@ namespace StabilometricApp.ViewModels {
 
             MessagingCenter.Send(this, "MC", new SimpleMessage(SimpleMessage.MessageType.STOP));
 
+            // Write whole dataset
+            System.Diagnostics.Debug.WriteLine(string.Format("Collected {0} readings", _collectorIndex));
             await _writer.FlushAsync();
-            lock(_writerLock) {
-                _writer.Dispose();
-                _writer = null;
-            }
+            await Task.Run(() => {
+                for(int i = 0; i < _collectorIndex; ++i) {
+                    _writer.Write(string.Format(
+                        CultureInfo.InvariantCulture,
+                        "{0},{1:F3},{2:F3},{3:F3},{4:F3},{5:F3},{6:F3},{7:F3},{8:F3},{9:F3}",
+                        _collector[i].Ticks,
+                        _collector[i].AccX, _collector[i].AccY, _collector[i].AccZ,
+                        _collector[i].GravX, _collector[i].GravY, _collector[i].GravZ,
+                        _collector[i].GyroX, _collector[i].GyroY, _collector[i].GyroZ
+                    ));
+
+                    _writer.WriteLine();
+                }
+                _writer.Flush();
+            });
+            _writer.Dispose();
+            _writer = null;
 
             IsRecording = false;
         }

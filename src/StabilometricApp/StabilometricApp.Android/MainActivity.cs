@@ -57,11 +57,10 @@ namespace StabilometricApp.Droid {
             MessagingCenter.Subscribe<RecordingViewModel, SimpleMessage>(this, "MC", (sender, msg) => {
                 switch(msg.Type) {
                     case SimpleMessage.MessageType.START:
-                        Log.Debug(LocalClassName, "Start Recording");
-                        _sensorListener.Register();
+                        Log.Debug(LocalClassName, "Start Recording (ignored)");
                         break;
                     case SimpleMessage.MessageType.STOP:
-                        Log.Debug(LocalClassName, "Stop Recording");
+                        Log.Debug(LocalClassName, "Stop Recording (ignored)");
                         _sensorListener.Unregister();
                         break;
                 }
@@ -72,6 +71,16 @@ namespace StabilometricApp.Droid {
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
+
+            Log.Debug(LocalClassName, "Start Recording");
+            _sensorListener.Register();
+        }
+
+        protected override void OnDestroy() {
+            base.OnDestroy();
+
+            Log.Debug(LocalClassName, "Stop Recording");
+            _sensorListener.Unregister();
         }
 
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults) {
@@ -99,7 +108,6 @@ namespace StabilometricApp.Droid {
                 _wakeLock.Release();
                 _wakeLock = null;
             }
-
         }
 
     }

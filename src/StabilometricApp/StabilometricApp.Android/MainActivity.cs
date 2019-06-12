@@ -61,7 +61,6 @@ namespace StabilometricApp.Droid {
                         break;
                     case SimpleMessage.MessageType.STOP:
                         Log.Debug(LocalClassName, "Stop Recording (ignored)");
-                        _sensorListener.Unregister();
                         break;
                 }
             });

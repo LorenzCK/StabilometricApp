@@ -23,7 +23,6 @@ namespace StabilometricApp.ViewModels {
 
         private const int TimerFrequencyHz = 100;
         private const int TimerIntervalMs = (1000 / TimerFrequencyHz);
-        private const int RecordingDurationSeconds = 30;
 
         private readonly Timer _timer;
 
@@ -132,6 +131,7 @@ namespace StabilometricApp.ViewModels {
 
             IsRecording = true;
             int countdownDuration = Settings.CountdownDuration;
+            int recordingDuration = Duration;
 
             while(countdownDuration > 0) {
                 _beepSecondaryPlayer.Play();
@@ -142,15 +142,15 @@ namespace StabilometricApp.ViewModels {
             }
 
             _beepPrimaryPlayer.Play();
-            Counter = RecordingDurationSeconds;
+            Counter = recordingDuration;
 
             _completed = false;
-            _targetTimestamp = DateTime.UtcNow.Add(TimeSpan.FromSeconds(RecordingDurationSeconds));
+            _targetTimestamp = DateTime.UtcNow.Add(TimeSpan.FromSeconds(recordingDuration));
             _updateTimestamp = DateTime.UtcNow.Add(TimeSpan.FromSeconds(1));
 
             _collectorIndex = 0;
-            _collector = new Reading[(int)(TimerFrequencyHz * RecordingDurationSeconds * 1.2)];
-            System.Diagnostics.Debug.WriteLine(string.Format("Allocated buffer of {0} elements for {1} seconds", _collector.Length, RecordingDurationSeconds));
+            _collector = new Reading[(int)(TimerFrequencyHz * recordingDuration * 1.2)];
+            System.Diagnostics.Debug.WriteLine(string.Format("Allocated buffer of {0} elements for {1} seconds", _collector.Length, recordingDuration));
 
             _timer.Change(TimerIntervalMs, TimerIntervalMs);
         }
@@ -289,7 +289,7 @@ namespace StabilometricApp.ViewModels {
                 return _sexSelectionIndex;
             }
             set {
-                if(value < 0 || value > 1) {
+                if(value < 0 || value >= SexList.Count) {
                     return;
                 }
 
@@ -297,6 +297,27 @@ namespace StabilometricApp.ViewModels {
                 Preferences.Set(nameof(RecordingViewModel) + nameof(SexSelectionIndex), value);
             }
         }
+
+        public IList DurationList { get; private set; } = new int[] {
+            10, 15, 20, 30
+        };
+
+        private int _durationSelectionIndex = 0;
+        public int DurationSelectionIndex {
+            get {
+                return _durationSelectionIndex;
+            }
+            set {
+                if(value < 0 || value >= DurationList.Count) {
+                    return;
+                }
+
+                SetProperty(ref _durationSelectionIndex, value);
+                Preferences.Set(nameof(RecordingViewModel) + nameof(DurationSelectionIndex), value);
+            }
+        }
+
+        public int Duration => (int)DurationList[DurationSelectionIndex];
 
     }
 

@@ -21,6 +21,19 @@
                          Orientation="Horizontal">
                 <Label VerticalOptions="Fill"
                        VerticalTextAlignment="Center"
+                       Text="Duration:"
+                       />
+                <Picker HorizontalOptions="Fill"
+                        ItemsSource="{Binding Path=DurationList}"
+                        SelectedIndex="{Binding Path=DurationSelectionIndex, Mode=TwoWay}"
+                        ItemDisplayBinding="{Binding StringFormat='{0} seconds'}"
+                        Title="Recording duration"
+                        />
+            </StackLayout>
+            <StackLayout HorizontalOptions="Fill"
+                         Orientation="Horizontal">
+                <Label VerticalOptions="Fill"
+                       VerticalTextAlignment="Center"
                        Text="Name:"
                        />
                 <Editor HorizontalOptions="FillAndExpand"

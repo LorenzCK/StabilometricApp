@@ -130,18 +130,16 @@ namespace StabilometricApp.ViewModels {
             await _writer.WriteLineAsync(string.Format("# Track notes: {0}", TrackNotes));
             await _writer.WriteLineAsync("Ticks, AccX, AccY, AccZ, GravX, GravY, GravZ, GyroX, GyroY, GyroZ");
 
-            _beepSecondaryPlayer.Play();
-            Counter = 3;
             IsRecording = true;
-            await Task.Delay(1000);
+            int countdownDuration = Settings.CountdownDuration;
 
-            _beepSecondaryPlayer.Play();
-            Counter = 2;
-            await Task.Delay(1000);
+            while(countdownDuration > 0) {
+                _beepSecondaryPlayer.Play();
+                Counter = countdownDuration;
+                await Task.Delay(1000);
 
-            _beepSecondaryPlayer.Play();
-            Counter = 1;
-            await Task.Delay(1000);
+                countdownDuration--;
+            }
 
             _beepPrimaryPlayer.Play();
             Counter = RecordingDurationSeconds;

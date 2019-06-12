@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:d="http://xamarin.com/schemas/2014/forms/design"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:StabilometricApp.ViewModels"
+             mc:Ignorable="d"
+             x:Class="StabilometricApp.Views.SettingsPage"
+             Title="Settings">
+
+    <ContentPage.BindingContext>
+        <vm:SettingsViewModel />
+    </ContentPage.BindingContext>
+
+    <ContentPage.Content>
+        <ScrollView HorizontalOptions="Fill"
+                    VerticalOptions="Fill"
+                    >
+            <TableView Intent="Settings"
+                       HorizontalOptions="Fill"
+                       >
+                <TableRoot>
+                    <TableSection Title="Timing">
+                        <EntryCell Keyboard="Numeric"
+                                   Label="Countdown duration:"
+                                   Text="{Binding Path=CountdownDuration, Mode=TwoWay}"
+                                   HorizontalTextAlignment="End"
+                                   />
+                    </TableSection>
+                </TableRoot>
+            </TableView>
+        </ScrollView>
+    </ContentPage.Content>
+    
+</ContentPage>

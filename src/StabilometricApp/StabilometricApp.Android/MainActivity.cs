@@ -8,6 +8,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Util;
 using Android.Widget;
+using StabilometricApp.Messages;
 using StabilometricApp.ViewModels;
 using Xamarin.Forms;
 
@@ -52,6 +53,10 @@ namespace StabilometricApp.Droid {
             ToolbarResource = Resource.Layout.Toolbar;
 
             base.OnCreate(savedInstanceState);
+
+            MessagingCenter.Subscribe<BaseViewModel, AlertMessage>(this, "Alert", (sender, alert) => {
+                Toast.MakeText(this, alert.Message, ToastLength.Long).Show();
+            });
 
             Forms.SetFlags("Shell_Experimental", "Visual_Experimental", "CollectionView_Experimental", "FastRenderers_Experimental");
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);

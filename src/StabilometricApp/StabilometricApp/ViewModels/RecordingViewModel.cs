@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Plugin.SimpleAudioPlayer;
+using StabilometricApp.Messages;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 
@@ -113,6 +114,7 @@ namespace StabilometricApp.ViewModels {
             }
             var personName = PersonName.ToFilenamePart();
             if(string.IsNullOrEmpty(personName)) {
+                MessagingCenter.Send<BaseViewModel, AlertMessage>(this, "Alert", new AlertMessage("Please set user name"));
                 return;
             }
 

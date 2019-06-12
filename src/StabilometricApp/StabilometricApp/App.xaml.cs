@@ -3,7 +3,6 @@ using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using StabilometricApp.Views;
 using System.Numerics;
-using StabilometricApp.Models;
 using StabilometricApp.ViewModels;
 
 namespace StabilometricApp {

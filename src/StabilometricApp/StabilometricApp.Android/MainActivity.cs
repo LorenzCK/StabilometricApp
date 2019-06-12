@@ -8,7 +8,6 @@ using Android.OS;
 using Android.Runtime;
 using Android.Util;
 using Android.Widget;
-using StabilometricApp.Models;
 using StabilometricApp.ViewModels;
 using Xamarin.Forms;
 
@@ -54,24 +53,13 @@ namespace StabilometricApp.Droid {
 
             base.OnCreate(savedInstanceState);
 
-            MessagingCenter.Subscribe<RecordingViewModel, SimpleMessage>(this, "MC", (sender, msg) => {
-                switch(msg.Type) {
-                    case SimpleMessage.MessageType.START:
-                        Log.Debug(LocalClassName, "Start Recording (ignored)");
-                        break;
-                    case SimpleMessage.MessageType.STOP:
-                        Log.Debug(LocalClassName, "Stop Recording (ignored)");
-                        break;
-                }
-            });
-            _sensorManager = GetSystemService(SensorService) as Android.Hardware.SensorManager;
-
             Forms.SetFlags("Shell_Experimental", "Visual_Experimental", "CollectionView_Experimental", "FastRenderers_Experimental");
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
 
             Log.Debug(LocalClassName, "Start Recording");
+            _sensorManager = GetSystemService(SensorService) as Android.Hardware.SensorManager;
             _sensorListener.Register();
         }
 

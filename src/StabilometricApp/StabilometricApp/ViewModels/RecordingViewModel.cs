@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Plugin.SimpleAudioPlayer;
-using StabilometricApp.Models;
 using Xamarin.Essentials;
 using Xamarin.Forms;
 
@@ -117,8 +116,6 @@ namespace StabilometricApp.ViewModels {
                 return;
             }
 
-            MessagingCenter.Send(this, "MC", new SimpleMessage(SimpleMessage.MessageType.START));
-
             string filename = "stabilo-" + personName.ToLowerInvariant() + "-" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + ".csv";
             string filepath = Path.Combine(App.GetExternalRootPath(), filename);
             _writer = new StreamWriter(new FileStream(filepath, FileMode.CreateNew));
@@ -166,8 +163,6 @@ namespace StabilometricApp.ViewModels {
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
 
             _beepFinalPlayer.Play();
-
-            MessagingCenter.Send(this, "MC", new SimpleMessage(SimpleMessage.MessageType.STOP));
 
             // Write whole dataset
             System.Diagnostics.Debug.WriteLine(string.Format("Collected {0} readings", _collectorIndex));

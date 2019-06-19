@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
@@ -35,6 +36,7 @@ namespace StabilometricApp.ViewModels {
             _timer = new Timer(TimerTick, null, Timeout.Infinite, Timeout.Infinite);
 
             StartRecording = new Command(async () => await StartRecordingPerform());
+            StopRecording = new Command(async () => await StopRecordingPerform(true));
 
             Task.Run(() => InitializeAudioPlayers());
 
@@ -107,6 +109,8 @@ namespace StabilometricApp.ViewModels {
 
         public ICommand StartRecording { get; }
 
+        public ICommand StopRecording { get; }
+
         private async Task StartRecordingPerform() {
             if(IsRecording) {
                 return;
@@ -155,35 +159,47 @@ namespace StabilometricApp.ViewModels {
             _timer.Change(TimerIntervalMs, TimerIntervalMs);
         }
 
-        private async Task StopRecordingPerform() {
+        private async Task StopRecordingPerform(bool dropFile = false) {
             if(!IsRecording) {
                 return;
             }
 
+            Debug.WriteLine(string.Format("Stopping, {0} readings collected", _collectorIndex));
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
 
-            _beepFinalPlayer.Play();
+            if(dropFile) {
+                var filepath = ((FileStream)_writer.BaseStream).Name; // 🤢
 
-            // Write whole dataset
-            System.Diagnostics.Debug.WriteLine(string.Format("Collected {0} readings", _collectorIndex));
-            await _writer.FlushAsync();
-            await Task.Run(() => {
-                for(int i = 0; i < _collectorIndex; ++i) {
-                    _writer.Write(string.Format(
-                        CultureInfo.InvariantCulture,
-                        "{0},{1:F3},{2:F3},{3:F3},{4:F3},{5:F3},{6:F3},{7:F3},{8:F3},{9:F3}",
-                        _collector[i].Ticks,
-                        _collector[i].AccX, _collector[i].AccY, _collector[i].AccZ,
-                        _collector[i].GravX, _collector[i].GravY, _collector[i].GravZ,
-                        _collector[i].GyroX, _collector[i].GyroY, _collector[i].GyroZ
-                    ));
+                _writer.Dispose();
+                _writer = null;
 
-                    _writer.WriteLine();
-                }
-                _writer.Flush();
-            });
-            _writer.Dispose();
-            _writer = null;
+                File.Delete(filepath);
+                Debug.WriteLine(string.Format("File {0} deleted", filepath));
+            }
+            else {
+                _beepFinalPlayer.Play();
+
+                Debug.WriteLine("Dumping data to file");
+
+                await _writer.FlushAsync();
+                await Task.Run(() => {
+                    for(int i = 0; i < _collectorIndex; ++i) {
+                        _writer.Write(string.Format(
+                            CultureInfo.InvariantCulture,
+                            "{0},{1:F3},{2:F3},{3:F3},{4:F3},{5:F3},{6:F3},{7:F3},{8:F3},{9:F3}",
+                            _collector[i].Ticks,
+                            _collector[i].AccX, _collector[i].AccY, _collector[i].AccZ,
+                            _collector[i].GravX, _collector[i].GravY, _collector[i].GravZ,
+                            _collector[i].GyroX, _collector[i].GyroY, _collector[i].GyroZ
+                        ));
+
+                        _writer.WriteLine();
+                    }
+                    _writer.Flush();
+                });
+                _writer.Dispose();
+                _writer = null;
+            }
 
             IsRecording = false;
         }

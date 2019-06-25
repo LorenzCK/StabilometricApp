@@ -35,6 +35,8 @@ namespace StabilometricApp {
                               LastGravityReading,
                               LastGyroscopeReading;
 
+        public static Func<string> GetDeviceInformation { get; set; }
+
     }
 
 }

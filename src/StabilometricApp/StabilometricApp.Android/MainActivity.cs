@@ -46,6 +46,16 @@ namespace StabilometricApp.Droid {
                     Toast.MakeText(this, "File manager not installed", ToastLength.Long).Show();
                 }
             };
+            App.GetDeviceInformation = () => {
+                return string.Format(
+                    "Stabilo v{0} on Android {1} (SDK {2}), running on {3} {4}",
+                    GetVersion(),
+                    Build.VERSION.Release ?? "Unknown version",
+                    Build.VERSION.SdkInt,
+                    Build.Manufacturer.ToTitleCase(),
+                    Build.Model.ToTitleCase()
+                );
+            };
         }
 
         protected override void OnCreate(Bundle savedInstanceState) {
@@ -99,6 +109,21 @@ namespace StabilometricApp.Droid {
                 _wakeLock.Release();
                 _wakeLock = null;
             }
+        }
+
+        private Version GetVersion() {
+            PackageInfo package;
+            try {
+                package = PackageManager.GetPackageInfo(PackageName, 0);
+            }
+            catch(PackageManager.NameNotFoundException) {
+                return new Version(1, 0);
+            }
+
+            if(Version.TryParse(package.VersionName, out Version ret))
+                return ret;
+            else
+                return new Version(1, 0);
         }
 
     }

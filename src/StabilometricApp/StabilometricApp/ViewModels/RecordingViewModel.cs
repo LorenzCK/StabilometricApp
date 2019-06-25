@@ -131,6 +131,7 @@ namespace StabilometricApp.ViewModels {
             await _writer.WriteLineAsync(string.Format("# Height (cm): {0}", PersonHeight));
             await _writer.WriteLineAsync(string.Format("# Weight (kg): {0}", PersonWeight));
             await _writer.WriteLineAsync(string.Format("# Track notes: {0}", TrackNotes));
+            await _writer.WriteLineAsync(string.Format("# Device information: {0}", App.GetDeviceInformation.Invoke()));
             await _writer.WriteLineAsync("Ticks, AccX, AccY, AccZ, GravX, GravY, GravZ, GyroX, GyroY, GyroZ");
 
             IsRecording = true;

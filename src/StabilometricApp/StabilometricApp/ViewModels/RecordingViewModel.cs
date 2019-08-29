@@ -43,6 +43,7 @@ namespace StabilometricApp.ViewModels {
             // Restore values from settings
             var t = GetType();
             foreach(var propertyName in new string[] {
+                nameof(DurationSelectionIndex),
                 nameof(TrackNotes),
                 nameof(PersonHeight),
                 nameof(PersonWeight),
